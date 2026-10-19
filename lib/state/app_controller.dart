@@ -37,7 +37,7 @@ class AppController extends ChangeNotifier {
   }
   Future<void> _save() => _storage.save({'isDarkMode':isDarkMode,'users':users.map((e)=>e.toJson()).toList(),'sessions':sessions.map((e)=>e.toJson()).toList(),'results':results.map((e)=>e.toJson()).toList()});
   Future<void> toggleTheme() async { isDarkMode = !isDarkMode; notifyListeners(); await _save(); }
-  String? validateName(String raw) { final name = raw.trim(); if (name.length < 3) return 'Nama harus diisi dengan minimal 3 karakter.'; return null; }
+  String? validateName(String raw) { final name = raw.trim(); if (name.length < 3) return 'Nama minimal 3 karakter.'; return null; }
   Future<UserProfile?> enterName(String raw) async {
     if (validateName(raw) != null) return null;
     final name = raw.trim(); final normalized = name.toLowerCase();
