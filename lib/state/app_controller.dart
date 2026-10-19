@@ -25,6 +25,49 @@ class AppController extends ChangeNotifier {
   int get elapsedSeconds => (currentSession?.elapsedSeconds ?? 0) + (_stopwatch?.elapsed.inSeconds ?? 0);
   List<QuizQuestion> get currentQuestions => currentSession == null ? [] : currentSession!.questionIds.map((id) => questionBank.firstWhere((q) => q.id == id)).toList();
   List<QuizResult> get currentUserResults => results.where((r) => r.userId == currentUser?.id).toList()..sort((a,b) => b.completedAt.compareTo(a.completedAt));
+
+  // Controller untuk data sesi latihan
+  // Durasi rata-rata
+  int? get currentUserAverageDurationSeconds {
+    final userResults = currentUserResults;
+    if (userResults.isEmpty) return null;
+    final totalSeconds = userResults.fold<int>(0, (sum, result) => sum + result.durationSeconds);
+    return (totalSeconds / userResults.length).round();
+  }
+
+  // Persentase benar rata-rata 
+  double? get currentUserAveragePercentage {
+    final userResults = currentUserResults;
+    if (userResults.isEmpty) return null;
+    return userResults.fold<double>(0, (sum, result) => sum + result.percentage) / userResults.length;
+  }
+
+  // Data Rekor Belajar
+  QuizResult? get currentUserLatestResult => currentUserResults.firstOrNull;
+
+  // Persentase benar tertinggi
+  QuizResult? get currentUserHighestAccuracyResult {
+    final userResults = currentUserResults;
+    if (userResults.isEmpty) return null;
+    userResults.sort((a, b) {
+      final accuracyComparison = b.percentage.compareTo(a.percentage);
+      if (accuracyComparison != 0) return accuracyComparison;
+      return a.durationSeconds.compareTo(b.durationSeconds);
+    });
+    return userResults.first;
+  }
+
+  // Durasi tercepat
+  QuizResult? get currentUserFastestResult {
+    final userResults = currentUserResults;
+    if (userResults.isEmpty) return null;
+    userResults.sort((a, b) {
+      final durationComparison = a.durationSeconds.compareTo(b.durationSeconds);
+      if (durationComparison != 0) return durationComparison;
+      return b.percentage.compareTo(a.percentage);
+    });
+    return userResults.first;
+  }
   QuizSession? get pausedSession => sessions.where((s) => s.userId == currentUser?.id && s.status == SessionStatus.paused).fold<QuizSession?>(null, (best, s) => best == null || (s.lastPausedAt ?? s.startedAt).isAfter(best.lastPausedAt ?? best.startedAt) ? s : best);
 
   Future<void> initialize() async {

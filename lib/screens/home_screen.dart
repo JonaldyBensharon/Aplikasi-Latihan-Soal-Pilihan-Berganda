@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import '../state/app_controller.dart';
+import 'session_info_screen.dart';
 import '../widgets/leaderboard_button.dart';
 import '../widgets/theme_toggle_button.dart';
 
@@ -48,21 +49,22 @@ class _HomeScreenState extends State<HomeScreen> {
     });
 
     try {
-      await widget.controller.enterName(_nameController.text);
-      if (!mounted) return;
+      final user = await widget.controller.enterName(_nameController.text);
+      if (!mounted || user == null) return;
 
-      final hasPausedSession = widget.controller.pausedSession != null;
-      ScaffoldMessenger.of(context)
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              hasPausedSession
-                  ? 'Sesi sebelumnya ditemukan. Fitur lanjutkan dibuat pada tahap berikutnya.'
-                  : 'Nama tersimpan. Layar latihan dibuat pada tahap berikutnya.',
-            ),
-          ),
-        );
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute<void>(
+          builder: (_) => SessionInfoScreen(controller: widget.controller),
+        ),
+      );
+
+      // Kolom nama dikosongkan ketika pengguna kembali ke Beranda.
+      if (mounted) {
+        setState(() {
+          _nameController.clear();
+          _nameError = null;
+        });
+      }
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
@@ -215,8 +217,8 @@ class _HomeScreenState extends State<HomeScreen> {
                               // Area tombol Masuk
                               Center(
                                 child: SizedBox(
-                                  width: 155,
-                                  height: 45,
+                                  width: 135,
+                                  height: 40,
                                   child: FilledButton(
                                     onPressed: _isSubmitting ? null : _enter,
                                     style: FilledButton.styleFrom(
@@ -239,7 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             'Masuk',
                                             style: TextStyle(
                                               fontWeight: FontWeight.w800,
-                                              fontSize: 18,
+                                              fontSize: 16,
                                             ),
                                           ),
                                   ),
