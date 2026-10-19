@@ -23,7 +23,6 @@ class SessionInfoScreen extends StatelessWidget {
         final highestAccuracy = controller.currentUserHighestAccuracyResult;
         final fastestResult = controller.currentUserFastestResult;
         final latestResult = controller.currentUserLatestResult;
-        final hasPausedSession = controller.pausedSession != null;
 
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -123,9 +122,11 @@ class SessionInfoScreen extends StatelessWidget {
                                     height: 40,
                                     child: FilledButton(
                                       onPressed: () async {
+                                        
+                                        // prepareSession melanjutkan sesi terhenti bila ada. Jika tidak ada, buat sesi baru.
                                         final ready = await controller.prepareSession();
                                         if (!ready || !context.mounted) return;
-                                        await Navigator.of(context).push<void>(
+                                        await Navigator.of(context).pushReplacement<void, void>(
                                           MaterialPageRoute<void>(
                                             builder: (_) => SessionExecutionScreen(controller: controller),
                                           ),
@@ -138,7 +139,7 @@ class SessionInfoScreen extends StatelessWidget {
                                         ),
                                       ),
                                       child: Text(
-                                        hasPausedSession ? 'Lanjut' : 'Mulai',
+                                        'Mulai',
                                         style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                                       ),
                                     ),
@@ -447,7 +448,7 @@ String _formatRelativeDate(DateTime dateTime) {
   if (elapsed.inDays >= 1) {
     return '${dateTime.day.toString().padLeft(2, '0')}/${dateTime.month.toString().padLeft(2, '0')}/${dateTime.year}';
   }
-  if (elapsed.inHours >= 1) return '${elapsed.inHours} jam yang lalu';
-  if (elapsed.inMinutes >= 1) return '${elapsed.inMinutes} menit yang lalu';
-  return '${elapsed.inSeconds.clamp(0, 59)} detik yang lalu';
+  if (elapsed.inHours >= 1) return '${elapsed.inHours} jam lalu';
+  if (elapsed.inMinutes >= 1) return '${elapsed.inMinutes} menit lalu';
+  return '${elapsed.inSeconds.clamp(0, 59)} detik lalu';
 }

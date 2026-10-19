@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'session_resume_screen.dart';
 import '../models/quiz_session.dart';
 import '../state/app_controller.dart';
 import '../theme/app_theme.dart';
@@ -53,10 +54,20 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
     }
   }
 
+    //
   Future<void> _leaveSession() async {
     if (_isCollecting) return;
     await controller.pauseSession();
-    if (mounted) Navigator.of(context).pop();
+    if (!mounted) return;
+
+    // Memastikan navigasi ke layar lanjutkan sesi ketika ada sesi terhenti yang belum diselesaikan.
+    // Seluruh route di atas Beranda dibuang agar tidak menumpuk.
+    await Navigator.of(context).pushAndRemoveUntil<void>(
+      MaterialPageRoute<void>(
+        builder: (_) => SessionResumeScreen(controller: controller),
+      ),
+      (route) => route.isFirst,
+    );
   }
 
   ButtonStyle _lightButtonStyle(ThemeData theme, Size size) {

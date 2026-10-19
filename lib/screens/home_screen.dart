@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../state/app_controller.dart';
 import 'session_info_screen.dart';
+import 'session_resume_screen.dart';
 import '../widgets/leaderboard_button.dart';
 import '../widgets/theme_toggle_button.dart';
 
@@ -52,9 +53,13 @@ class _HomeScreenState extends State<HomeScreen> {
       final user = await widget.controller.enterName(_nameController.text);
       if (!mounted || user == null) return;
 
+      // Navigasi ke layar lanjutkan sesi latihan bila ada sesi latihan yang terhenti
+      final hasPausedSession = widget.controller.pausedSession != null;
       await Navigator.of(context).push<void>(
         MaterialPageRoute<void>(
-          builder: (_) => SessionInfoScreen(controller: widget.controller),
+          builder: (_) => hasPausedSession
+              ? SessionResumeScreen(controller: widget.controller)
+              : SessionInfoScreen(controller: widget.controller),
         ),
       );
 
