@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/quiz_result.dart';
+import 'session_execution_screen.dart';
 import '../state/app_controller.dart';
 import '../widgets/leaderboard_button.dart';
 import '../widgets/theme_toggle_button.dart';
@@ -19,9 +20,10 @@ class SessionInfoScreen extends StatelessWidget {
         final colors = theme.colorScheme;
         final isDark = theme.brightness == Brightness.dark;
         final user = controller.currentUser;
-        final latestResult = controller.currentUserLatestResult;
         final highestAccuracy = controller.currentUserHighestAccuracyResult;
         final fastestResult = controller.currentUserFastestResult;
+        final latestResult = controller.currentUserLatestResult;
+        final hasPausedSession = controller.pausedSession != null;
 
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -120,32 +122,24 @@ class SessionInfoScreen extends StatelessWidget {
                                     width: 135,
                                     height: 40,
                                     child: FilledButton(
-                                      onPressed: () {
-                                        ScaffoldMessenger.of(context)
-                                          ..hideCurrentSnackBar()
-                                          ..showSnackBar(
-                                            const SnackBar(
-                                              content: Text(
-                                                'Fitur memulai sesi latihan akan tersedia pada tahap berikutnya.',
-                                              ),
-                                            ),
-                                          );
+                                      onPressed: () async {
+                                        final ready = await controller.prepareSession();
+                                        if (!ready || !context.mounted) return;
+                                        await Navigator.of(context).push<void>(
+                                          MaterialPageRoute<void>(
+                                            builder: (_) => SessionExecutionScreen(controller: controller),
+                                          ),
+                                        );
                                       },
                                       style: FilledButton.styleFrom(
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 20,
-                                        ),
+                                        padding: const EdgeInsets.symmetric(horizontal: 20),
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(12),
                                         ),
                                       ),
-                                      child: const Text(
-                                        'Mulai',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 16,
-                                        ),
+                                      child: Text(
+                                        hasPausedSession ? 'Lanjut' : 'Mulai',
+                                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
                                       ),
                                     ),
                                   ),

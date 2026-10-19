@@ -76,14 +76,57 @@ class AppController extends ChangeNotifier {
     users.addAll(((data['users'] as List?) ?? []).map((e) => UserProfile.fromJson(Map<String,dynamic>.from(e as Map))));
     sessions.addAll(((data['sessions'] as List?) ?? []).map((e) => QuizSession.fromJson(Map<String,dynamic>.from(e as Map))));
     results.addAll(((data['results'] as List?) ?? []).map((e) => QuizResult.fromJson(Map<String,dynamic>.from(e as Map))));
+    
+    for (final s in sessions.where((s) => s.status == SessionStatus.active)) {
+      s.status = SessionStatus.paused;
+      s.lastPausedAt ??= DateTime.now();
+    }
+
     _ready = true; notifyListeners();
   }
-  Future<void> _save() => _storage.save({'isDarkMode':isDarkMode,'users':users.map((e)=>e.toJson()).toList(),'sessions':sessions.map((e)=>e.toJson()).toList(),'results':results.map((e)=>e.toJson()).toList()});
+
+  // Controller penyimpanan state
+  Future<void> _save() => _storage.save({
+    'isDarkMode': isDarkMode,
+    'users': users.map((e) => e.toJson()).toList(),
+    'sessions': sessions.map((e) {
+      final json = e.toJson();
+
+      // Durasi berjalan disimpan agar tidak hilang bila proses dimatikan.
+      if (identical(e, currentSession) && e.status == SessionStatus.active) {
+        json['elapsedSeconds'] = elapsedSeconds;
+      }
+
+      return json;
+    }).toList(),
+    'results': results.map((e) => e.toJson()).toList(),
+  });
+
+  // Melanjutkan sesi terhenti bila ada sebelum membuat sesi baru
+  bool _preparing = false;
+  
+  Future<bool> prepareSession() async {
+  if (_preparing || currentUser == null) return false;
+  _preparing = true;
+  try {
+    if (pausedSession != null) {
+      await resumeSession();
+    } else {
+      await startSession();
+    }
+    return currentSession != null;
+  } finally {
+    _preparing = false;
+  }
+  }
+
   Future<void> toggleTheme() async { isDarkMode = !isDarkMode; notifyListeners(); await _save(); }
+
   String? validateName(String raw) { final name = raw.trim(); if (name.length < 3) return 'Nama minimal 3 karakter.'; return null; }
   Future<UserProfile?> enterName(String raw) async {
     if (validateName(raw) != null) return null;
-    final name = raw.trim(); final normalized = name.toLowerCase();
+    final name = raw.trim(); 
+    final normalized = name;
     currentUser = users.where((u)=>u.normalizedName == normalized).firstOrNull;
     currentUser ??= UserProfile(id: DateTime.now().microsecondsSinceEpoch.toString(), displayName:name, normalizedName:normalized);
     if (!users.any((u)=>u.id == currentUser!.id)) users.add(currentUser!);

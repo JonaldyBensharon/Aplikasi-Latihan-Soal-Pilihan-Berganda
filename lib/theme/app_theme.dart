@@ -7,6 +7,8 @@ class AppTheme {
   static const lightText = Color(0xFF222A43);
   static const lightSecondary = Color(0xFF64748B);
   static const lightBorder = Color(0xFFE2E8F0);
+  static const lightCorrect = Color(0xFF15803D);
+  static const lightWrong = Color(0xFFB91C1C);
 
   static const darkBackground = Color(0xFF111827);
   static const darkSurface = Color(0xFF1F2937);
@@ -14,6 +16,9 @@ class AppTheme {
   static const darkText = Color(0xFFF9FAFB);
   static const darkSecondary = Color(0xFF9CA3AF);
   static const darkBorder = Color(0xFF374151);
+  static const darkCorrect = Color(0xFF4ADE80);
+  static const darkWrong = Color(0xFFFF0000);
+
 
   static ThemeData light() {
     final scheme = ColorScheme.fromSeed(
@@ -26,7 +31,7 @@ class AppTheme {
       onSurface: lightText,
       onSurfaceVariant: lightSecondary,
       outline: lightBorder,
-      error: const Color(0xFFB91C1C),
+      error: lightWrong,
     );
 
     return ThemeData(
@@ -62,7 +67,7 @@ class AppTheme {
       onSurface: darkText,
       onSurfaceVariant: darkSecondary,
       outline: darkBorder,
-      error: const Color(0xFFFF0000),
+      error: darkWrong,
     );
 
     return ThemeData(
@@ -86,4 +91,10 @@ class AppTheme {
       ),
     );
   }
+
+  static Color correctColor(Brightness b) => b == Brightness.dark ? darkCorrect : lightCorrect;
+  static Color wrongColor(Brightness b) => b == Brightness.dark ? darkWrong : lightWrong;
+
+  // Penanda soal "sudah dijawab" memakai warna yang sama dengan "benar".
+  static Color answeredColor(Brightness b) => correctColor(b);
 }
