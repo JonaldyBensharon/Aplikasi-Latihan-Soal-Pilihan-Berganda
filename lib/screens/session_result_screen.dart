@@ -5,6 +5,7 @@ import '../state/app_controller.dart';
 import '../widgets/leaderboard_button.dart';
 import '../widgets/theme_toggle_button.dart';
 import 'session_info_screen.dart';
+import 'session_inspection_screen.dart';
 
 // Ringkasan hasil dari sesi latihan yang baru saja diselesaikan.
 class SessionResultScreen extends StatelessWidget {
@@ -35,8 +36,8 @@ class SessionResultScreen extends StatelessWidget {
         final answeredQuestionCount = completedSessions.isEmpty
             ? 0
             : completedSessions.first.questionIds
-                  .where((id) => completedSessions.first.answers[id] != null)
-                  .length;
+                .where((id) => completedSessions.first.answers[id] != null)
+                .length;
 
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -115,29 +116,24 @@ class SessionResultScreen extends StatelessWidget {
                                     Expanded(
                                       child: OutlinedButton(
                                         onPressed: () {
-                                          ScaffoldMessenger.of(context)
-                                            ..hideCurrentSnackBar()
-                                            ..showSnackBar(
-                                              const SnackBar(
-                                                content: Text(
-                                                  'Layar pemeriksaan jawaban akan dibuat pada tahap berikutnya.',
-                                                ),
+                                          Navigator.of(context).push<void>(
+                                            MaterialPageRoute<void>(
+                                              builder: (_) => SessionInspectionScreen(
+                                                controller: controller,
+                                                result: result,
                                               ),
-                                            );
+                                            ),
+                                          );
                                         },
                                         style: OutlinedButton.styleFrom(
-                                          minimumSize: const Size.fromHeight(
-                                            40,
-                                          ),
+                                          minimumSize: const Size.fromHeight(40),
                                           foregroundColor: colors.onSurface,
                                           backgroundColor: colors.surface,
                                           side: BorderSide(
                                             color: theme.dividerColor,
                                           ),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
                                           ),
                                         ),
                                         child: const Text(
@@ -152,24 +148,18 @@ class SessionResultScreen extends StatelessWidget {
                                     Expanded(
                                       child: FilledButton(
                                         onPressed: () {
-                                          Navigator.of(context)
-                                              .pushReplacement<void, void>(
-                                                MaterialPageRoute<void>(
-                                                  builder: (_) =>
-                                                      SessionInfoScreen(
-                                                        controller: controller,
-                                                      ),
-                                                ),
-                                              );
+                                          Navigator.of(context).pushReplacement<void, void>(
+                                            MaterialPageRoute<void>(
+                                              builder: (_) => SessionInfoScreen(
+                                                controller: controller,
+                                              ),
+                                            ),
+                                          );
                                         },
                                         style: FilledButton.styleFrom(
-                                          minimumSize: const Size.fromHeight(
-                                            40,
-                                          ),
+                                          minimumSize: const Size.fromHeight(40),
                                           shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              10,
-                                            ),
+                                            borderRadius: BorderRadius.circular(10),
                                           ),
                                         ),
                                         child: const Text(

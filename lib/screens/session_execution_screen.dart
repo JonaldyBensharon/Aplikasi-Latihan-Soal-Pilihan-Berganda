@@ -71,6 +71,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
     );
   }
 
+  // Pengaturan tombol warna putih
   ButtonStyle _lightButtonStyle(ThemeData theme, Size size) {
     final isDark = theme.brightness == Brightness.dark;
     final fg = isDark ? AppTheme.lightText : theme.colorScheme.onSurface;
@@ -290,6 +291,8 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                     ?.copyWith(fontWeight: FontWeight.w800, fontSize: 24),
               ),
             ),
+
+            // Area isi
             body: SafeArea(
               top: false,
               child: Column(
@@ -383,7 +386,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
 
                                     const SizedBox(height: 12),
 
-                                    // Area soal (bacaan + pertanyaan): tinggi tetap
+                                    // Area soal
                                     SizedBox(
                                       height: questionAreaHeight,
                                       child: SingleChildScrollView(
@@ -452,6 +455,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                         constraints: const BoxConstraints(maxWidth: 760),
                         child: Row(
                           children: [
+                            // Tombol sebelumnya
                             Expanded(
                               child: OutlinedButton(
                                 onPressed: currentIndex == 0
@@ -468,6 +472,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                             // Jarak antartombol
                             const SizedBox(width: 15),
 
+                            // Tombol berikutnya dan kumpulkan
                             Expanded(
                               child: FilledButton(
                                 onPressed: isLastQuestion

@@ -262,13 +262,13 @@ class _TrainingInfoCard extends StatelessWidget {
           const SizedBox(height: 5),
           _InfoRow(
             scale: scale,
-            label: 'Durasi pengerjaan',
+            label: 'Durasi rata-rata',
             value: averageDuration == null ? '-' : _formatDuration(averageDuration!),
           ),
           const SizedBox(height: 8),
           _InfoRow(
             scale: scale,
-            label: 'Persentase jawaban benar',
+            label: 'Rata-rata benar',
             value: averagePercentage == null
                 ? '-'
                 : _formatPercentage(averagePercentage!),
