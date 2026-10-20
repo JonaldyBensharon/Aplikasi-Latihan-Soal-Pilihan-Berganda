@@ -7,7 +7,8 @@ class AnswerOptionTile extends StatelessWidget {
     required this.label,
     required this.text,
     required this.selected,
-    required this.onTap,
+    this.onTap,
+    this.statusColor,
   });
 
   final String label;
@@ -15,13 +16,18 @@ class AnswerOptionTile extends StatelessWidget {
   final bool selected;
   final VoidCallback? onTap;
 
+  final Color? statusColor;
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final accent = statusColor ?? colors.primary;
 
     return Material(
-      color: selected ? colors.primary.withValues(alpha: 0.09) : colors.surface,
+      color: selected
+          ? accent.withValues(alpha: statusColor == null ? 0.09 : 0.06)
+          : colors.surface,
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         onTap: onTap,
@@ -32,7 +38,7 @@ class AnswerOptionTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(10),
             border: Border.all(
-              color: selected ? colors.primary : theme.dividerColor,
+              color: selected ? accent : theme.dividerColor,
               width: selected ? 1.4 : 1,
             ),
           ),
@@ -45,16 +51,22 @@ class AnswerOptionTile extends StatelessWidget {
                 height: 26,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: selected ? colors.primary : colors.surface,
+                  color: selected && statusColor == null
+                      ? accent
+                      : colors.surface,
                   borderRadius: BorderRadius.circular(7),
                   border: Border.all(
-                    color: selected ? colors.primary : theme.dividerColor,
+                    color: selected ? accent : theme.dividerColor,
                   ),
                 ),
                 child: Text(
                   '$label.',
                   style: theme.textTheme.labelMedium?.copyWith(
-                    color: selected ? colors.onPrimary : colors.onSurface,
+                    color: !selected
+                        ? colors.onSurface
+                        : statusColor == null
+                            ? colors.onPrimary
+                            : accent,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
