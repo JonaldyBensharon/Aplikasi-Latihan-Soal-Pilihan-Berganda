@@ -122,9 +122,8 @@ class SessionInfoScreen extends StatelessWidget {
                                     height: 40,
                                     child: FilledButton(
                                       onPressed: () async {
-                                        
-                                        // prepareSession melanjutkan sesi terhenti bila ada. Jika tidak ada, buat sesi baru.
-                                        final ready = await controller.prepareSession();
+                                        // Tombol Mulai selalu membuat sesi baru
+                                        final ready = await controller.startNewSession();
                                         if (!ready || !context.mounted) return;
                                         await Navigator.of(context).pushReplacement<void, void>(
                                           MaterialPageRoute<void>(

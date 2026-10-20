@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'session_resume_screen.dart';
+import 'session_result_screen.dart';
 import '../models/quiz_session.dart';
 import '../state/app_controller.dart';
 import '../theme/app_theme.dart';
@@ -97,6 +98,9 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(color: theme.dividerColor),
       ),
+
+
+      // Area kotak dialog konfirmasi
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 400),
         child: Padding(
@@ -203,23 +207,17 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
       }
 
       final result = await controller.completeSession();
-      if (!mounted) return;
+      if (!mounted || result == null) return;
 
-      final messenger = ScaffoldMessenger.of(context);
-      Navigator.of(context).pop();
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(
-            content: Text(
-              result == null
-                  ? 'Latihan telah dikumpulkan.'
-                  : 'Latihan dikumpulkan. ${result.correctCount}/'
-                      '${result.totalQuestions} benar '
-                      '(${result.percentage.toStringAsFixed(0)}%).',
-            ),
+      // Penggantian layar pelaksanaan dengan layar hasil agar tombol Kembali menuju layar informasi sesi
+      await Navigator.of(context).pushReplacement<void, void>(
+        MaterialPageRoute<void>(
+          builder: (_) => SessionResultScreen(
+            controller: controller,
+            result: result,
           ),
-        );
+        ),
+      );
     } finally {
       _isCollecting = false;
     }
