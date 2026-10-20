@@ -197,7 +197,6 @@ class _SortButton extends StatelessWidget {
   final ValueChanged<bool> onSelected;
 
   PopupMenuItem<bool> _item(BuildContext context, bool value, String label) {
-    final colors = Theme.of(context).colorScheme;
     final selected = value == sortByScore;
     return PopupMenuItem<bool>(
       value: value,
@@ -321,8 +320,8 @@ class _EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.emoji_events_outlined,
-                size: 40 * scale, color: colors.onSurfaceVariant),
+            Icon(Icons.emoji_events,
+                size: 50 * scale, color: colors.onSurfaceVariant),
             const SizedBox(height: 12),
             Text(
               'Belum ada pengguna yang menyelesaikan latihan.',

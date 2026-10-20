@@ -165,17 +165,7 @@ class SessionInfoScreen extends StatelessWidget {
                         children: [
                           LeaderboardButton(
                             compact: true,
-                            onPressed: () {
-                              ScaffoldMessenger.of(context)
-                                ..hideCurrentSnackBar()
-                                ..showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Layar peringkat akan dibuat pada tahap berikutnya.',
-                                    ),
-                                  ),
-                                );
-                            },
+                            controller: controller,
                           ),
                           ThemeToggleButton(
                             controller: controller,

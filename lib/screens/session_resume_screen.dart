@@ -161,20 +161,13 @@ class SessionResumeScreen extends StatelessWidget {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          // Tombol peringkat
                           LeaderboardButton(
                             compact: true,
-                            onPressed: () {
-                              ScaffoldMessenger.of(context)
-                                ..hideCurrentSnackBar()
-                                ..showSnackBar(
-                                  const SnackBar(
-                                    content: Text(
-                                      'Layar peringkat akan dibuat pada tahap berikutnya.',
-                                    ),
-                                  ),
-                                );
-                            },
+                            controller: controller,
                           ),
+
+                          // Tombol pengaturan tema
                           ThemeToggleButton(
                             controller: controller,
                             compact: true,

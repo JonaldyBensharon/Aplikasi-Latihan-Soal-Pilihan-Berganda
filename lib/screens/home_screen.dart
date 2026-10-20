@@ -1,5 +1,4 @@
 import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import '../state/app_controller.dart';
 import 'session_info_screen.dart';
@@ -17,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  static const int _maximumNameLength = 40;
+  static const int _maximumNameLength = 30;
   static const double _bottomBarHeight = 93;
   final TextEditingController _nameController = TextEditingController();
   String? _nameError;
@@ -73,16 +72,6 @@ class _HomeScreenState extends State<HomeScreen> {
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }
-  }
-
-  void _openLeaderboard() {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(
-          content: Text('Leaderboard akan dibuat pada tahap berikutnya.'),
-        ),
-      );
   }
 
   @override
@@ -270,7 +259,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   LeaderboardButton(
                     compact: true,
-                    onPressed: _openLeaderboard,
+                    controller: widget.controller,
                   ),
                   ThemeToggleButton(
                     controller: widget.controller,
