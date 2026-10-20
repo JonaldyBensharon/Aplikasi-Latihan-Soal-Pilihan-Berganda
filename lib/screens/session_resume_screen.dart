@@ -7,7 +7,7 @@ import '../widgets/leaderboard_button.dart';
 import '../widgets/theme_toggle_button.dart';
 import 'session_execution_screen.dart';
 
-/// Ringkasan sesi yang dihentikan sementara sebelum pengguna melanjutkannya.
+// Ringkasan sesi yang dihentikan sementara sebelum pengguna melanjutkannya.
 class SessionResumeScreen extends StatelessWidget {
   const SessionResumeScreen({super.key, required this.controller});
 
@@ -39,6 +39,8 @@ class SessionResumeScreen extends StatelessWidget {
             final scale = isWide ? 1.2 : 1.0;
 
             return Scaffold(
+
+              // Area kepala layar
               appBar: AppBar(
                 toolbarHeight: 55,
                 backgroundColor: colors.surface,
@@ -63,6 +65,8 @@ class SessionResumeScreen extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // Area isi
               body: SafeArea(
                 top: false,
                 child: Column(
@@ -75,6 +79,8 @@ class SessionResumeScreen extends StatelessWidget {
                           isWide ? 32 : 22,
                           15,
                         ),
+
+                        // Area salam dan petunjuk
                         child: Center(
                           child: ConstrainedBox(
                             constraints: BoxConstraints(
@@ -101,6 +107,8 @@ class SessionResumeScreen extends StatelessWidget {
                                   ),
                                 ),
                                 const SizedBox(height: 20),
+
+                                // penampilan data sesi terhenti
                                 _PausedSessionCard(
                                   scale: scale,
                                   session: session,
@@ -243,6 +251,8 @@ class _PausedSessionCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+
+          // Nama latihan
           Text(
             'Bahasa Inggris',
             style: theme.textTheme.titleMedium?.copyWith(
@@ -252,6 +262,8 @@ class _PausedSessionCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 5),
+
+          // Deskripsi latihan
           Text(
             'Kosakata, tata bahasa, dan penyusunan kalimat dalam bahasa Inggris.',
             style: theme.textTheme.bodySmall?.copyWith(
@@ -261,6 +273,8 @@ class _PausedSessionCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
+
+          // Riwayat pembelajaran
           Text('Riwayat Pembelajaran', style: sectionStyle),
           const SizedBox(height: 5),
           _ResumeInfoRow(
@@ -278,7 +292,9 @@ class _PausedSessionCard extends StatelessWidget {
                 ? '-'
                 : _formatPausedAt(session!.lastPausedAt!),
           ),
-          const SizedBox(height: 20),
+
+          // Memastikan jarak konsisten dengan layar info
+          SizedBox(height: (28 + 12 * scale)),
           Text('Rekor Belajar', style: sectionStyle),
           const SizedBox(height: 5),
           _ResumeRecordRow(

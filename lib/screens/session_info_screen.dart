@@ -358,7 +358,7 @@ class _InfoRow extends StatelessWidget {
         ),
         const SizedBox(width: 12),
 
-        // Expanded memaksa area nilai mengisi sisa lebar sehingga rata kanan berlaku.
+        // Expanded memaksa area nilai mengisi sisa lebar sehingga data berada pada posisi ujung kanan.
         Expanded(
           flex: 2,
           child: Text(
@@ -376,8 +376,6 @@ class _InfoRow extends StatelessWidget {
     );
   }
 }
-
-// Baris rekor belajar dengan label di  area atas, lalu persentase (rata kiri) dan durasi (rata kanan) pada baris di bawahnya. Tanda "-" mengikuti posisi yang sama.
 class _RecordRow extends StatelessWidget {
   const _RecordRow({
     required this.scale,
