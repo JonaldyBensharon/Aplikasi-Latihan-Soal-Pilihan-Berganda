@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+
 import '../state/app_controller.dart';
+import '../theme/responsive.dart';
 
 class ThemeToggleButton extends StatelessWidget {
   const ThemeToggleButton({
@@ -19,23 +21,24 @@ class ThemeToggleButton extends StatelessWidget {
         final isDarkMode = controller.isDarkMode;
         final theme = Theme.of(context);
         final colors = theme.colorScheme;
+        final s = context.rs;
+        final side = (compact ? 50.0 : 60.0) * s;
 
         return IconButton(
           tooltip: isDarkMode ? 'Aktifkan light mode' : 'Aktifkan dark mode',
           onPressed: controller.toggleTheme,
           icon: Icon(
             isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-            size: compact ? 30 : 30,
+            size: 30 * s,
             color: colors.onSurface,
           ),
           style: IconButton.styleFrom(
             backgroundColor: colors.surface,
             side: BorderSide(color: theme.dividerColor),
-            minimumSize: compact ? const Size(50, 50) : const Size(60, 60),
-            maximumSize: compact ? const Size(65, 65) : null,
+            fixedSize: Size.square(side),
             padding: EdgeInsets.zero,
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(compact ? 12 : 15),
+              borderRadius: BorderRadius.circular((compact ? 12 : 15) * s),
             ),
           ),
         );

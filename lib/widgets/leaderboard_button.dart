@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../screens/leaderboard_screen.dart';
 import '../state/app_controller.dart';
+import '../theme/responsive.dart';
 
 // Tombol menuju ke layar Peringkat
 class LeaderboardButton extends StatelessWidget {
@@ -26,19 +27,20 @@ class LeaderboardButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final s = context.rs;
+    final side = (compact ? 50.0 : 60.0) * s;
 
     return IconButton(
       tooltip: 'Buka leaderboard',
       onPressed: () => _open(context),
-      icon: Icon(Icons.view_list_rounded, size: 30, color: colors.onSurface),
+      icon: Icon(Icons.view_list_rounded, size: 30 * s, color: colors.onSurface),
       style: IconButton.styleFrom(
         backgroundColor: colors.surface,
         side: BorderSide(color: theme.dividerColor),
-        minimumSize: compact ? const Size(50, 50) : const Size(60, 60),
-        maximumSize: compact ? const Size(65, 65) : null,
+        fixedSize: Size.square(side),
         padding: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(compact ? 12 : 15),
+          borderRadius: BorderRadius.circular((compact ? 12 : 15) * s),
         ),
       ),
     );

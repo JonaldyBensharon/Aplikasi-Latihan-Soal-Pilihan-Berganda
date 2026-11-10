@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/responsive.dart';
+
 // Widget pilihan jawaban yang akan digunakan pada layar pelaksanaan dan pemeriksaan latihan
 class AnswerOptionTile extends StatelessWidget {
   const AnswerOptionTile({
@@ -23,20 +25,21 @@ class AnswerOptionTile extends StatelessWidget {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final accent = statusColor ?? colors.primary;
+    final s = context.rs;
 
     return Material(
       color: selected
           ? accent.withValues(alpha: statusColor == null ? 0.09 : 0.06)
           : colors.surface,
-      borderRadius: BorderRadius.circular(10),
+      borderRadius: BorderRadius.circular(10 * s),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(10 * s),
         child: Container(
-          constraints: const BoxConstraints(minHeight: 42),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          constraints: BoxConstraints(minHeight: 42 * s),
+          padding: EdgeInsets.symmetric(horizontal: 10 * s, vertical: 8 * s),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(10 * s),
             border: Border.all(
               color: selected ? accent : theme.dividerColor,
               width: selected ? 1.4 : 1,
@@ -47,14 +50,14 @@ class AnswerOptionTile extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 28,
-                height: 26,
+                width: 28 * s,
+                height: 26 * s,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: selected && statusColor == null
                       ? accent
                       : colors.surface,
-                  borderRadius: BorderRadius.circular(7),
+                  borderRadius: BorderRadius.circular(7 * s),
                   border: Border.all(
                     color: selected ? accent : theme.dividerColor,
                   ),
@@ -71,7 +74,7 @@ class AnswerOptionTile extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 10),
+              SizedBox(width: 10 * s),
               Expanded(
                 child: Text(
                   text,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../theme/responsive.dart';
 
 enum QuestionNumberStatus { unanswered, answered, correct, wrong }
 
@@ -24,9 +25,11 @@ class QuestionNumberStrip extends StatefulWidget {
 }
 
 class _QuestionNumberStripState extends State<QuestionNumberStrip> {
-  static const double _size = 34;
-  static const double _gap = 5;
   final ScrollController _scroll = ScrollController();
+
+
+  double get _size => 34 * context.rs;
+  double get _gap => 5 * context.rs;
 
   @override
   void initState() {
@@ -78,14 +81,15 @@ class _QuestionNumberStripState extends State<QuestionNumberStrip> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final brightness = theme.brightness;
+    final size = _size;
 
     return SizedBox(
-      height: 38,
+      height: size + 4 * context.rs,
       child: ListView.separated(
         controller: _scroll,
         scrollDirection: Axis.horizontal,
         itemCount: widget.count,
-        separatorBuilder: (_, __) => const SizedBox(width: _gap),
+        separatorBuilder: (_, __) => SizedBox(width: _gap),
         itemBuilder: (context, index) {
           final status = widget.statusOf(index);
           final isCurrent = index == widget.currentIndex;
@@ -109,7 +113,7 @@ class _QuestionNumberStripState extends State<QuestionNumberStrip> {
               customBorder: const CircleBorder(),
               onTap: () => widget.onSelected(index),
               child: Container(
-                width: _size,
+                width: size,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: background,
