@@ -1,10 +1,11 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../state/app_controller.dart';
+import '../theme/responsive.dart';
 import 'session_info_screen.dart';
 import 'session_resume_screen.dart';
-import '../widgets/leaderboard_button.dart';
-import '../widgets/theme_toggle_button.dart';
+import '../widgets/bottom_action_bar.dart';
+import '../widgets/primary_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key, required this.controller});
@@ -17,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   static const int _maximumNameLength = 30;
-  static const double _bottomBarHeight = 93;
   final TextEditingController _nameController = TextEditingController();
   String? _nameError;
   bool _isSubmitting = false;
@@ -79,9 +79,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
     final isDarkMode = theme.brightness == Brightness.dark;
+    final s = context.rs;
 
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
-    final contentBottomInset = math.max(0.0, keyboardInset - _bottomBarHeight);
+    final contentBottomInset =
+        math.max(0.0, keyboardInset - BottomActionBar.heightFor(s));
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -91,183 +93,131 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: Padding(
                 padding: EdgeInsets.only(bottom: contentBottomInset),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    final isWide = constraints.maxWidth >= 600;
 
-                    // Area logo aplikasi
-                    return SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(
-                        isWide ? 32 : 20,
-                        60,
-                        isWide ? 32 : 20,
-                        30,
-                      ),
-                      child: Center(
-                        child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 520),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                // Area logo aplikasi
+                child: SingleChildScrollView(
+                  padding: EdgeInsets.fromLTRB(20 * s, 60 * s, 20 * s, 30 * s),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: 520 * s),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Center(child: _logoPill(context, isDarkMode)),
+                          SizedBox(height: 50 * s),
+                          Text(
+                            'Aplikasi Latihan Soal Pilihan Berganda',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colors.onSurface,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                          ),
+                          SizedBox(height: 10 * s),
+                          Text(
+                            'Tingkatkan pemahaman, pantau perkembangan, dan lampaui batasan.',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              height: 1.4,
+                              fontSize: 13,
+                            ),
+                          ),
+
+                          // Area kolom nama pengguna
+                          SizedBox(height: 35 * s),
+                          Text(
+                            'Nama pengguna',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: colors.onSurface,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 8 * s),
+                          TextField(
+                            controller: _nameController,
+                            maxLength: _maximumNameLength,
+                            textCapitalization: TextCapitalization.words,
+                            textInputAction: TextInputAction.done,
+                            onChanged: _onNameChanged,
+                            onSubmitted: (_) => _enter(),
+                            decoration: InputDecoration(
+                              hintText: 'Masukkan nama Anda',
+                              prefixIcon: Icon(
+                                Icons.person_outline_rounded,
+                                size: 18 * s,
+                              ),
+                              counterText: '',
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12 * s,
+                                vertical: 12 * s,
+                              ),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10 * s),
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10 * s),
+                                borderSide: BorderSide(
+                                  color: _nameError == null
+                                      ? theme.dividerColor
+                                      : colors.error,
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10 * s),
+                                borderSide: BorderSide(
+                                  color: _nameError == null
+                                      ? colors.primary
+                                      : colors.error,
+                                  width: 1.4,
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 5 * s),
+
+                          // Pesan error dan penghitung karakter berada pada satu baris.
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Center(child: _logoPill(context, isDarkMode)),
-                              const SizedBox(height: 50),
-                              Text(
-                                'Aplikasi Latihan Soal Pilihan Berganda',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: colors.onSurface,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 16,
-                                ),
+                              Expanded(
+                                child: _nameError == null
+                                    ? const SizedBox.shrink()
+                                    : Text(
+                                        _nameError!,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: theme.textTheme.labelSmall
+                                            ?.copyWith(color: colors.error),
+                                      ),
                               ),
-                              const SizedBox(height: 10),
+                              SizedBox(width: 8 * s),
                               Text(
-                                'Tingkatkan pemahaman, pantau perkembangan, dan lampaui batasan.',
-                                style: theme.textTheme.bodySmall?.copyWith(
+                                '${_nameController.text.length}/$_maximumNameLength',
+                                textAlign: TextAlign.right,
+                                style: theme.textTheme.labelSmall?.copyWith(
                                   color: colors.onSurfaceVariant,
-                                  height: 1.4,
-                                  fontSize: 13,
-                                ),
-                              ),
-
-                              // Area kolom nama pengguna
-                              const SizedBox(height: 35),
-                              Text(
-                                'Nama pengguna',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: colors.onSurface,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              TextField(
-                                controller: _nameController,
-                                maxLength: _maximumNameLength,
-                                textCapitalization: TextCapitalization.words,
-                                textInputAction: TextInputAction.done,
-                                onChanged: _onNameChanged,
-                                onSubmitted: (_) => _enter(),
-                                decoration: InputDecoration(
-                                  hintText: 'Masukkan nama Anda',
-                                  prefixIcon: const Icon(
-                                    Icons.person_outline_rounded,
-                                    size: 18,
-                                  ),
-                                  counterText: '',
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
-                                    vertical: 12,
-                                  ),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: _nameError == null
-                                          ? theme.dividerColor
-                                          : colors.error,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10),
-                                    borderSide: BorderSide(
-                                      color: _nameError == null
-                                          ? colors.primary
-                                          : colors.error,
-                                      width: 1.4,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-
-                              // Pesan error dan penghitung karakter berada pada satu baris.
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: _nameError == null
-                                        ? const SizedBox.shrink()
-                                        : Text(
-                                            _nameError!,
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: theme.textTheme.labelSmall
-                                                ?.copyWith(color: colors.error),
-                                          ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    '${_nameController.text.length}/$_maximumNameLength',
-                                    textAlign: TextAlign.right,
-                                    style: theme.textTheme.labelSmall?.copyWith(
-                                      color: colors.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 40),
-
-                              // Area tombol Masuk
-                              Center(
-                                child: SizedBox(
-                                  width: 135,
-                                  height: 40,
-                                  child: FilledButton(
-                                    onPressed: _isSubmitting ? null : _enter,
-                                    style: FilledButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 20,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                      ),
-                                    ),
-                                    child: _isSubmitting
-                                        ? const SizedBox(
-                                            width: 25,
-                                            height: 25,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                            ),
-                                          )
-                                        : const Text(
-                                            'Masuk',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.w800,
-                                              fontSize: 16,
-                                            ),
-                                          ),
-                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
+                          SizedBox(height: 40 * s),
+
+                          // Area tombol Masuk
+                          PrimaryButton(
+                            label: 'Masuk',
+                            onPressed: _enter,
+                            loading: _isSubmitting,
+                          ),
+                        ],
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
               ),
             ),
 
             // Area bawah untuk bagian tombol
-            Padding(
-              padding: const EdgeInsets.fromLTRB(25, 8, 25, 35),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  LeaderboardButton(
-                    compact: true,
-                    controller: widget.controller,
-                  ),
-                  ThemeToggleButton(
-                    controller: widget.controller,
-                    compact: true,
-                  ),
-                ],
-              ),
-            ),
+            BottomActionBar(controller: widget.controller),
           ],
         ),
       ),
@@ -277,12 +227,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _logoPill(BuildContext context, bool isDarkMode) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final s = context.rs;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 13, vertical: 7),
+      padding: EdgeInsets.symmetric(horizontal: 13 * s, vertical: 7 * s),
       decoration: BoxDecoration(
         color: colors.surface,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(14 * s),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDarkMode ? 0.08 : 0.10),
@@ -301,12 +252,12 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: Image.asset(
               'assets/images/logo.png',
-              width: 52,
-              height: 52,
+              width: 52 * s,
+              height: 52 * s,
               fit: BoxFit.contain,
             ),
           ),
-          const SizedBox(width: 7),
+          SizedBox(width: 7 * s),
           Text(
             'Drill Exe',
             style: theme.textTheme.titleLarge?.copyWith(
