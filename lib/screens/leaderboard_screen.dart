@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../models/quiz_result.dart';
 import '../state/app_controller.dart';
+import '../theme/responsive.dart';
+import '../utils/formatters.dart';
 import '../widgets/theme_toggle_button.dart';
 
 // Peringkat seluruh pengguna berdasarkan hasil latihan yang sudah selesai.
@@ -27,6 +29,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         final colors = theme.colorScheme;
         final isDark = theme.brightness == Brightness.dark;
         final controller = widget.controller;
+        final s = context.rs;
 
         final entries = _sortByScore
             ? controller.leaderboardByScore
@@ -40,13 +43,12 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
         return LayoutBuilder(
           builder: (context, constraints) {
             final isWide = constraints.maxWidth >= _wideBreakpoint;
-            final scale = isWide ? 1.2 : 1.0;
 
             final themeButton =
                 ThemeToggleButton(controller: controller, compact: true);
             final sortButton = _SortButton(
               sortByScore: _sortByScore,
-              scale: scale,
+              scale: s,
               onSelected: (value) => setState(() => _sortByScore = value),
             );
 
@@ -54,23 +56,24 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
 
               // Area kepala layar
               appBar: AppBar(
-                toolbarHeight: 55,
+                toolbarHeight: 55 * s,
                 backgroundColor: colors.surface,
                 surfaceTintColor: Colors.transparent,
                 elevation: 3,
                 scrolledUnderElevation: 3,
                 shadowColor: Colors.black.withValues(alpha: isDark ? 0.4 : 0.15),
+                leadingWidth: 56 * s,
                 leading: IconButton(
                   tooltip: 'Kembali',
                   onPressed: () => Navigator.of(context).maybePop(),
-                  icon: const Icon(Icons.arrow_back_rounded, size: 28),
+                  icon: Icon(Icons.arrow_back_rounded, size: 28 * s),
                 ),
                 centerTitle: true,
                 title: Text(
                   'Peringkat',
                   style: theme.textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.w800,
-                    fontSize: 24 * scale,
+                    fontSize: 24,
                     color: colors.onSurface,
                   ),
                 ),
@@ -81,15 +84,9 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                 top: false,
                 child: Center(
                   child: ConstrainedBox(
-                    constraints:
-                        BoxConstraints(maxWidth: isWide ? 720 : 520),
+                    constraints: BoxConstraints(maxWidth: 520 * s),
                     child: Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        isWide ? 32 : 20,
-                        20,
-                        isWide ? 32 : 20,
-                        isWide ? 28 : 25,
-                      ),
+                      padding: EdgeInsets.fromLTRB(20 * s, 20 * s, 20 * s, 25 * s),
                       child: Column(
                         children: [
                           // Area tombol pada bagian atas
@@ -100,26 +97,26 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                             children: isWide
                                 ? [
                                     sortButton,
-                                    const SizedBox(width: 12),
+                                    SizedBox(width: 12 * s),
                                     themeButton,
                                   ]
                                 : [themeButton, sortButton],
                           ),
-                          const SizedBox(height: 20),
+                          SizedBox(height: 20 * s),
 
                           // Area papan peringkat
                           Expanded(
                             child: Container(
                               width: double.infinity,
                               padding: EdgeInsets.fromLTRB(
-                                12 * scale,
-                                14 * scale,
-                                12 * scale,
-                                12 * scale,
+                                12 * s,
+                                14 * s,
+                                12 * s,
+                                12 * s,
                               ),
                               decoration: BoxDecoration(
                                 color: colors.surface,
-                                borderRadius: BorderRadius.circular(20),
+                                borderRadius: BorderRadius.circular(20 * s),
                                 border: Border.all(
                                   color: theme.dividerColor
                                       .withValues(alpha: 0.8),
@@ -134,17 +131,17 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                 ],
                               ),
                               child: visibleEntries.isEmpty
-                                  ? _EmptyState(scale: scale)
+                                  ? _EmptyState(scale: s)
                                   : Column(
                                       children: [
-                                        _HeaderLabels(scale: scale),
-                                        const SizedBox(height: 10),
+                                        _HeaderLabels(scale: s),
+                                        SizedBox(height: 10 * s),
 
                                         Expanded(
                                           child: ListView.separated(
                                             itemCount: visibleEntries.length,
                                             separatorBuilder: (_, __) =>
-                                                const SizedBox(height: 8),
+                                                SizedBox(height: 8 * s),
                                             itemBuilder: (context, index) {
                                               final result =
                                                   visibleEntries[index];
@@ -157,7 +154,7 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
                                                 isCurrentUser:
                                                     result.userId ==
                                                         currentUserId,
-                                                scale: scale,
+                                                scale: s,
                                               );
                                             },
                                           ),
@@ -179,7 +176,6 @@ class _LeaderboardScreenState extends State<LeaderboardScreen> {
     );
   }
 }
-
 
 const double _rankColumnWidth = 64;
 const double _statColumnWidth = 84;
@@ -225,11 +221,11 @@ class _SortButton extends StatelessWidget {
       initialValue: sortByScore,
       onSelected: onSelected,
       position: PopupMenuPosition.under,
-      offset: const Offset(0, 6),
+      offset: Offset(0, 6 * scale),
       color: colors.surface,
       surfaceTintColor: Colors.transparent,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12 * scale),
         side: BorderSide(color: theme.dividerColor),
       ),
       itemBuilder: (context) => [
@@ -237,13 +233,13 @@ class _SortButton extends StatelessWidget {
         _item(context, false, 'Durasi tercepat'),
       ],
       child: Container(
-        height: 50,
+        height: 50 * scale,
         constraints: BoxConstraints(minWidth: 110 * scale),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsets.symmetric(horizontal: 16 * scale),
         decoration: BoxDecoration(
           color: colors.surface,
           border: Border.all(color: theme.dividerColor),
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(12 * scale),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -253,13 +249,13 @@ class _SortButton extends StatelessWidget {
               sortByScore ? 'Skor' : 'Durasi',
               style: TextStyle(
                 fontWeight: FontWeight.w700,
-                fontSize: 15 * scale,
+                fontSize: 15,
                 color: colors.onSurface,
               ),
             ),
-            const SizedBox(width: 8),
+            SizedBox(width: 8 * scale),
             Icon(Icons.arrow_downward_rounded,
-                size: 20, color: colors.onSurface),
+                size: 20 * scale, color: colors.onSurface),
           ],
         ),
       ),
@@ -276,13 +272,14 @@ class _HeaderLabels extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final style = TextStyle(
-      fontSize: 12 * scale,
+      fontSize: 12,
       fontWeight: FontWeight.w600,
       color: colors.onSurfaceVariant,
     );
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: _rowHorizontalPadding + 1),
+      padding: EdgeInsets.symmetric(
+          horizontal: (_rowHorizontalPadding + 1) * scale),
       child: Row(
         // Area label
         children: [
@@ -291,11 +288,11 @@ class _HeaderLabels extends StatelessWidget {
             child: Text('Peringkat', textAlign: TextAlign.center, style: style),
           ),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8 * scale),
 
           Expanded(child: Text('Nama', style: style)),
 
-          const SizedBox(width: 8),
+          SizedBox(width: 8 * scale),
           SizedBox(
             width: _statColumnWidth * scale,
             child: Text('Statistik', textAlign: TextAlign.end, style: style),
@@ -316,18 +313,18 @@ class _EmptyState extends StatelessWidget {
     final colors = Theme.of(context).colorScheme;
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: EdgeInsets.all(16 * scale),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.emoji_events,
                 size: 50 * scale, color: colors.onSurfaceVariant),
-            const SizedBox(height: 12),
+            SizedBox(height: 12 * scale),
             Text(
               'Belum ada pengguna yang menyelesaikan latihan.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 13 * scale,
+                fontSize: 13,
                 height: 1.4,
                 color: colors.onSurfaceVariant,
               ),
@@ -362,21 +359,21 @@ class _LeaderboardRow extends StatelessWidget {
     final colors = theme.colorScheme;
     final accent = isCurrentUser ? colors.primary : theme.dividerColor;
 
-    final percentage = _formatPercentage(result.percentage);
-    final duration = _formatDuration(result.durationSeconds);
+    final percentage = formatPercentage(result.percentage);
+    final duration = formatDuration(result.durationSeconds);
     final statistic = scoreMode ? percentage : duration;
     final secondaryStatistic = scoreMode ? duration : percentage;
 
     return Container(
       constraints: BoxConstraints(minHeight: 52 * scale),
       padding: EdgeInsets.symmetric(
-        horizontal: _rowHorizontalPadding,
+        horizontal: _rowHorizontalPadding * scale,
         vertical: 7 * scale,
       ),
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         border: Border.all(color: accent, width: isCurrentUser ? 1.4 : 1),
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(12 * scale),
       ),
       child: Row(
         children: [
@@ -389,18 +386,18 @@ class _LeaderboardRow extends StatelessWidget {
                   minHeight: 30 * scale,
                 ),
                 alignment: Alignment.center,
-                padding: const EdgeInsets.symmetric(horizontal: 6),
+                padding: EdgeInsets.symmetric(horizontal: 6 * scale),
                 decoration: BoxDecoration(
                   color: colors.surface,
                   border: Border.all(
                     color: isCurrentUser ? colors.primary : theme.dividerColor,
                   ),
-                  borderRadius: BorderRadius.circular(8),
+                  borderRadius: BorderRadius.circular(8 * scale),
                 ),
                 child: Text(
                   '$rank.',
                   style: TextStyle(
-                    fontSize: 13 * scale,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: colors.onSurface,
                   ),
@@ -408,21 +405,21 @@ class _LeaderboardRow extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8 * scale),
           Expanded(
             child: Text(
               name,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
               style: TextStyle(
-                fontSize: 12.5 * scale,
+                fontSize: 12.5,
                 fontWeight: isCurrentUser ? FontWeight.w700 : FontWeight.w500,
                 color: colors.onSurface,
                 height: 1.3,
               ),
             ),
           ),
-          const SizedBox(width: 8),
+          SizedBox(width: 8 * scale),
           SizedBox(
             width: _statColumnWidth * scale,
             child: Column(
@@ -433,17 +430,17 @@ class _LeaderboardRow extends StatelessWidget {
                   statistic,
                   maxLines: 1,
                   style: TextStyle(
-                    fontSize: 12.5 * scale,
+                    fontSize: 12.5,
                     fontWeight: FontWeight.w700,
                     color: colors.onSurface,
                   ),
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2 * scale),
                 Text(
                   secondaryStatistic,
                   maxLines: 1,
                   style: TextStyle(
-                    fontSize: 10.5 * scale,
+                    fontSize: 10.5,
                     color: colors.onSurfaceVariant,
                   ),
                 ),
@@ -454,18 +451,4 @@ class _LeaderboardRow extends StatelessWidget {
       ),
     );
   }
-}
-
-String _formatDuration(int seconds) {
-  final hours = seconds ~/ 3600;
-  final minutes = (seconds % 3600) ~/ 60;
-  final remainingSeconds = seconds % 60;
-  return '${hours.toString().padLeft(2, '0')}:'
-      '${minutes.toString().padLeft(2, '0')}:'
-      '${remainingSeconds.toString().padLeft(2, '0')}';
-}
-
-String _formatPercentage(double percentage) {
-  final rounded = double.parse(percentage.toStringAsFixed(1));
-  return '${rounded == rounded.roundToDouble() ? rounded.toInt() : rounded}%';
 }
