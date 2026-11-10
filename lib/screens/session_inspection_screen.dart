@@ -5,6 +5,7 @@ import '../models/quiz_result.dart';
 import '../models/quiz_session.dart';
 import '../state/app_controller.dart';
 import '../theme/app_theme.dart';
+import '../theme/responsive.dart';
 import '../widgets/question_number_strip.dart';
 import '../widgets/theme_toggle_button.dart';
 import '../widgets/answer_option_tile.dart';
@@ -27,9 +28,6 @@ class SessionInspectionScreen extends StatefulWidget {
 }
 
 class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
-  static const double _questionAreaHeight = 100;
-  static const double _optionHeight = 48;
-  static const double _optionGap = 8;
   int _currentIndex = 0;
   AppController get controller => widget.controller;
 
@@ -45,7 +43,7 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
   }
 
   // Pengaturan tombol warna putih
-  ButtonStyle _lightButtonStyle(ThemeData theme, Size size) {
+  ButtonStyle _lightButtonStyle(ThemeData theme, Size size, double s) {
     final isDark = theme.brightness == Brightness.dark;
     final fg = isDark ? AppTheme.lightText : theme.colorScheme.onSurface;
     final border = isDark ? AppTheme.lightBorder : theme.dividerColor;
@@ -56,7 +54,7 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
       disabledForegroundColor: fg.withValues(alpha: 0.4),
       side: BorderSide(color: border),
       minimumSize: size,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12 * s)),
     );
   }
 
@@ -84,25 +82,38 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
     );
   }
 
+  PreferredSizeWidget _appBar(ThemeData theme, double s, {bool styledTitle = true}) {
+    return AppBar(
+      toolbarHeight: 56 * s,
+      leadingWidth: 56 * s,
+      leading: IconButton(
+        tooltip: 'Kembali ke hasil sesi',
+        onPressed: () => Navigator.of(context).pop(),
+        icon: Icon(Icons.arrow_back_rounded, size: 28 * s),
+      ),
+      centerTitle: true,
+      title: Text(
+        'Bahasa Inggris',
+        style: styledTitle
+            ? theme.textTheme.titleLarge
+                ?.copyWith(fontWeight: FontWeight.w800, fontSize: 24)
+            : null,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colors = theme.colorScheme;
+    final s = context.rs;
     final session = _session;
     final user = controller.currentUser;
 
     // Memastikan hasil dan sesi yang diperiksa benar-benar milik pengguna aktif.
     if (session == null || user == null || user.id != widget.result.userId) {
       return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            tooltip: 'Kembali ke hasil sesi',
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_rounded),
-          ),
-          centerTitle: true,
-          title: const Text('Bahasa Inggris'),
-        ),
+        appBar: _appBar(theme, s, styledTitle: false),
         body: const Center(
           child: Padding(
             padding: EdgeInsets.all(24),
@@ -117,14 +128,7 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
         .toList();
     if (questions.isEmpty) {
       return Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: const Icon(Icons.arrow_back_rounded),
-          ),
-          centerTitle: true,
-          title: const Text('Bahasa Inggris'),
-        ),
+        appBar: _appBar(theme, s, styledTitle: false),
         body: const Center(child: Text('Soal untuk sesi ini tidak tersedia.')),
       );
     }
@@ -139,28 +143,11 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
         : isCorrect
             ? AppTheme.correctColor(theme.brightness)
             : AppTheme.wrongColor(theme.brightness);
-    final screenWidth = MediaQuery.sizeOf(context).width;
-    final isWide = screenWidth >= 700;
-    final horizontalPadding = isWide ? 32.0 : 18.0;
+    final hPad = 18.0 * s;
 
     return Scaffold(
-
       // Area kepala layar
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Kembali ke hasil sesi',
-          onPressed: () => Navigator.of(context).pop(),
-          icon: const Icon(Icons.arrow_back_rounded, size: 28),
-        ),
-        centerTitle: true,
-        title: Text(
-          'Bahasa Inggris',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-            fontSize: 24,
-          ),
-        ),
-      ),
+      appBar: _appBar(theme, s),
 
       // Area isi
       body: SafeArea(
@@ -169,10 +156,10 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
           children: [
             Expanded(
               child: SingleChildScrollView(
-                padding: EdgeInsets.fromLTRB(horizontalPadding, 20, horizontalPadding, 18),
+                padding: EdgeInsets.fromLTRB(hPad, 20 * s, hPad, 18 * s),
                 child: Center(
                   child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 760),
+                    constraints: BoxConstraints(maxWidth: 760 * s),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -192,7 +179,7 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                           onSelected: (index) => setState(() => _currentIndex = index),
                         ),
 
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15 * s),
 
                         // Teks Petunjuk
                         Text(
@@ -201,14 +188,14 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                               ?.copyWith(color: colors.onSurfaceVariant),
                         ),
 
-                        const SizedBox(height: 15),
+                        SizedBox(height: 15 * s),
 
                         // Area penampilan pertanyaan
                         Container(
-                          padding: EdgeInsets.all(isWide ? 22 : 14),
+                          padding: EdgeInsets.all(16 * s),
                           decoration: BoxDecoration(
                             color: colors.surface,
-                            borderRadius: BorderRadius.circular(15),
+                            borderRadius: BorderRadius.circular(15 * s),
                             border: Border.all(color: statusColor, width: 2),
                           ),
 
@@ -219,12 +206,13 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10 * s, vertical: 4 * s),
                                   decoration: BoxDecoration(
                                     color: isAnswered
                                         ? statusColor.withValues(alpha: 0.10)
                                         : colors.surface,
-                                    borderRadius: BorderRadius.circular(8),
+                                    borderRadius: BorderRadius.circular(8 * s),
                                     border: Border.all(color: statusColor),
                                   ),
                                   child: Text(
@@ -237,12 +225,11 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                                 ),
                               ),
 
-
-                              const SizedBox(height: 12),
+                              SizedBox(height: 12 * s),
 
                               // Area soal
                               SizedBox(
-                                height: _questionAreaHeight,
+                                height: 100 * s,
                                 child: SingleChildScrollView(
                                   child: Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -257,7 +244,7 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                                             fontWeight: FontWeight.w600,
                                           ),
                                         ),
-                                        const SizedBox(height: 10),
+                                        SizedBox(height: 10 * s),
                                       ],
                                       Text(
                                         question.prompt,
@@ -269,12 +256,12 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                                 ),
                               ),
 
-                              const SizedBox(height: 16),
+                              SizedBox(height: 16 * s),
                               for (var i = 0;
                                   i < question.options.length;
                                   i++) ...[
                                 SizedBox(
-                                  height: _optionHeight,
+                                  height: 48 * s,
                                   child: _buildOption(
                                     question: question,
                                     index: i,
@@ -283,7 +270,7 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                                   ),
                                 ),
                                 if (i < question.options.length - 1)
-                                  const SizedBox(height: _optionGap),
+                                  SizedBox(height: 8 * s),
                               ],
                             ],
                           ),
@@ -297,10 +284,10 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
 
             // Area tombol navigasi pertanyaan
             Padding(
-              padding: EdgeInsets.fromLTRB(horizontalPadding, 10, horizontalPadding, 30),
+              padding: EdgeInsets.fromLTRB(hPad, 10 * s, hPad, 30 * s),
               child: Center(
                 child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 760),
+                  constraints: BoxConstraints(maxWidth: 760 * s),
                   child: Row(
                     children: [
                       // Tombol Sebelumnya
@@ -310,13 +297,13 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                               ? null
                               : () => setState(() => _currentIndex--),
                           style: _lightButtonStyle(
-                              theme, const Size.fromHeight(44)),
+                              theme, Size.fromHeight(44 * s), s),
                           child: const Text('Sebelumnya', style: TextStyle(fontWeight: FontWeight.w700)),
                         ),
                       ),
 
                       // Jarak antartombol
-                      const SizedBox(width: 15),
+                      SizedBox(width: 15 * s),
 
                       // Tombol Berikutnya
                       Expanded(
@@ -325,7 +312,7 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
                               ? null
                               : () => setState(() => _currentIndex++),
                           style: _lightButtonStyle(
-                              theme, const Size.fromHeight(44)),
+                              theme, Size.fromHeight(44 * s), s),
                           child: const Text('Berikutnya', style: TextStyle(fontWeight: FontWeight.w700)),
                         ),
                       ),
@@ -337,10 +324,15 @@ class _SessionInspectionScreenState extends State<SessionInspectionScreen> {
 
             // Area tombol pengaturan tema
             Padding(
-              padding: EdgeInsets.fromLTRB(horizontalPadding, 0, horizontalPadding, 20),
-              child: Align(
-                alignment: Alignment.centerRight,
-                child: ThemeToggleButton(controller: controller, compact: true),
+              padding: EdgeInsets.fromLTRB(hPad, 0, hPad, 20 * s),
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 760 * s),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: ThemeToggleButton(controller: controller, compact: true),
+                  ),
+                ),
               ),
             ),
           ],

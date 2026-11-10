@@ -5,6 +5,8 @@ import 'session_result_screen.dart';
 import '../models/quiz_session.dart';
 import '../state/app_controller.dart';
 import '../theme/app_theme.dart';
+import '../theme/responsive.dart';
+import '../utils/formatters.dart';
 import '../widgets/answer_option_tile.dart';
 import '../widgets/question_number_strip.dart';
 import '../widgets/theme_toggle_button.dart';
@@ -18,9 +20,6 @@ class SessionExecutionScreen extends StatefulWidget {
 }
 
 class _SessionExecutionScreenState extends State<SessionExecutionScreen> with WidgetsBindingObserver {
-  static const double _optionHeight = 48;
-  static const double _optionGap = 8;
-
   AppController get controller => widget.controller;
 
   // Menghentikan timer selama proses pengumpulan
@@ -55,7 +54,6 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
     }
   }
 
-    //
   Future<void> _leaveSession() async {
     if (_isCollecting) return;
     await controller.pauseSession();
@@ -72,7 +70,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
   }
 
   // Pengaturan tombol warna putih
-  ButtonStyle _lightButtonStyle(ThemeData theme, Size size) {
+  ButtonStyle _lightButtonStyle(ThemeData theme, Size size, double s) {
     final isDark = theme.brightness == Brightness.dark;
     final fg = isDark ? AppTheme.lightText : theme.colorScheme.onSurface;
     final border = isDark ? AppTheme.lightBorder : theme.dividerColor;
@@ -83,49 +81,49 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
       disabledForegroundColor: fg.withValues(alpha: 0.4),
       side: BorderSide(color: border),
       minimumSize: size,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12 * s)),
     );
   }
 
   Widget _confirmDialog(BuildContext dialogContext, int unanswered) {
     final theme = Theme.of(dialogContext);
     final colors = theme.colorScheme;
+    final s = dialogContext.rs;
 
     return Dialog(
       backgroundColor: colors.surface,
       surfaceTintColor: Colors.transparent,
-      insetPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+      insetPadding: EdgeInsets.symmetric(horizontal: 24 * s, vertical: 24 * s),
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
+        borderRadius: BorderRadius.circular(20 * s),
         side: BorderSide(color: theme.dividerColor),
       ),
 
-
       // Area kotak dialog konfirmasi
       child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
+        constraints: BoxConstraints(maxWidth: 400 * s),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(22, 24, 22, 20),
+          padding: EdgeInsets.fromLTRB(22 * s, 24 * s, 22 * s, 20 * s),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Center(
                 child: Container(
-                  width: 56,
-                  height: 56,
+                  width: 56 * s,
+                  height: 56 * s,
                   decoration: BoxDecoration(
                     color: colors.primary.withValues(alpha: 0.12),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
                     Icons.question_mark_outlined,
-                    size: 28,
+                    size: 28 * s,
                     color: colors.primary,
                   ),
                 ),
               ),
-              const SizedBox(height: 16),
+              SizedBox(height: 16 * s),
               Text(
                 'Pengumpulan Latihan',
                 textAlign: TextAlign.center,
@@ -134,7 +132,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                   fontSize: 18,
                 ),
               ),
-              const SizedBox(height: 10),
+              SizedBox(height: 10 * s),
               Text(
                 unanswered > 0
                     ? 'Masih ada $unanswered pertanyaan yang belum dijawab. '
@@ -147,25 +145,26 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                   height: 1.45,
                 ),
               ),
-              const SizedBox(height: 22),
+              SizedBox(height: 22 * s),
               Row(
                 children: [
                   Expanded(
                     child: OutlinedButton(
                       onPressed: () => Navigator.of(dialogContext).pop(false),
-                      style: _lightButtonStyle(theme, const Size.fromHeight(44)),
+                      style: _lightButtonStyle(
+                          theme, Size.fromHeight(44 * s), s),
                       child: const Text('Batal',
                           style: TextStyle(fontWeight: FontWeight.w700)),
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: 12 * s),
                   Expanded(
                     child: FilledButton(
                       onPressed: () => Navigator.of(dialogContext).pop(true),
                       style: FilledButton.styleFrom(
-                        minimumSize: const Size.fromHeight(44),
+                        minimumSize: Size.fromHeight(44 * s),
                         shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(12 * s),
                         ),
                       ),
                       child: const Text('Iya',
@@ -224,15 +223,6 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
     }
   }
 
-  String _formatDuration(int totalSeconds) {
-    final h = totalSeconds ~/ 3600;
-    final m = (totalSeconds % 3600) ~/ 60;
-    final s = totalSeconds % 60;
-    return '${h.toString().padLeft(2, '0')}:'
-        '${m.toString().padLeft(2, '0')}:'
-        '${s.toString().padLeft(2, '0')}';
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -245,6 +235,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
         builder: (context, _) {
           final theme = Theme.of(context);
           final colors = theme.colorScheme;
+          final s = context.rs;
           final session = controller.currentSession;
           final questions = controller.currentQuestions;
 
@@ -259,28 +250,26 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
           final question = questions[currentIndex];
           final selectedAnswer = session.answers[question.id];
           final isLastQuestion = currentIndex == questions.length - 1;
-          final screenSize = MediaQuery.sizeOf(context);
-          final isWide = screenSize.width >= 700;
-          final hPad = isWide ? 32.0 : 18.0;
-
-          // Area pertanyaan
-          final double questionAreaHeight = 100;
+          final hPad = 18.0 * s;
 
           ButtonStyle navStyle(Size size) => FilledButton.styleFrom(
                 minimumSize: size,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(10 * s),
                 ),
               );
 
           return Scaffold(
             // Area Kepala Layar
             appBar: AppBar(
+              toolbarHeight: 56 * s,
+              leadingWidth: 56 * s,
+
               // Tombol Kembali
               leading: IconButton(
                 tooltip: 'Hentikan sementara dan kembali',
                 onPressed: _leaveSession,
-                icon: const Icon(Icons.arrow_back_rounded, size: 28),
+                icon: Icon(Icons.arrow_back_rounded, size: 28 * s),
               ),
 
               // Nama latihan
@@ -299,10 +288,10 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                 children: [
                   Expanded(
                     child: SingleChildScrollView(
-                      padding: EdgeInsets.fromLTRB(hPad, 20, hPad, 18),
+                      padding: EdgeInsets.fromLTRB(hPad, 20 * s, hPad, 18 * s),
                       child: Center(
                         child: ConstrainedBox(
-                          constraints: const BoxConstraints(maxWidth: 760),
+                          constraints: BoxConstraints(maxWidth: 760 * s),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.stretch,
                             children: [
@@ -321,19 +310,20 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                     ),
                                   ),
 
-                                  const SizedBox(width: 10),
+                                  SizedBox(width: 10 * s),
 
                                   // Timer
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 10 * s, vertical: 8 * s),
                                     decoration: BoxDecoration(
                                       color: colors.surface,
-                                      borderRadius: BorderRadius.circular(9),
+                                      borderRadius: BorderRadius.circular(9 * s),
                                       border:
                                           Border.all(color: theme.dividerColor),
                                     ),
                                     child: Text(
-                                      _formatDuration(controller.elapsedSeconds),
+                                      formatDuration(controller.elapsedSeconds),
                                       style: theme.textTheme.labelMedium
                                           ?.copyWith(fontWeight: FontWeight.w700),
                                     ),
@@ -341,7 +331,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                 ],
                               ),
 
-                              const SizedBox(height: 15),
+                              SizedBox(height: 15 * s),
 
                               // Teks Petunjuk
                               Text(
@@ -350,14 +340,14 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                     ?.copyWith(color: colors.onSurfaceVariant),
                               ),
 
-                              const SizedBox(height: 15),
+                              SizedBox(height: 15 * s),
 
                               // Area penampilan pertanyaan
                               Container(
-                                padding: EdgeInsets.all(isWide ? 22 : 14),
+                                padding: EdgeInsets.all(16 * s),
                                 decoration: BoxDecoration(
                                   color: colors.surface,
-                                  borderRadius: BorderRadius.circular(15),
+                                  borderRadius: BorderRadius.circular(15 * s),
                                   border: Border.all(color: theme.dividerColor, width: 2),
                                 ),
 
@@ -368,10 +358,11 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                     Align(
                                       alignment: Alignment.centerLeft,
                                       child: Container(
-                                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 10 * s, vertical: 4 * s),
                                         decoration: BoxDecoration(
                                           color: colors.primary.withValues(alpha: 0.09),
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(8 * s),
                                         ),
                                         child: Text(
                                           '${currentIndex + 1}.',
@@ -384,11 +375,11 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                       ),
                                     ),
 
-                                    const SizedBox(height: 12),
+                                    SizedBox(height: 12 * s),
 
                                     // Area soal
                                     SizedBox(
-                                      height: questionAreaHeight,
+                                      height: 100 * s,
                                       child: SingleChildScrollView(
                                         child: Column(
                                           crossAxisAlignment:
@@ -406,7 +397,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                                   fontWeight: FontWeight.w600,
                                                 ),
                                               ),
-                                              const SizedBox(height: 10),
+                                              SizedBox(height: 10 * s),
                                             ],
                                             Text(
                                               question.prompt,
@@ -418,14 +409,14 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                       ),
                                     ),
 
-                                    const SizedBox(height: 16),
+                                    SizedBox(height: 16 * s),
                                     for (var i = 0;
                                         i < question.options.length;
                                         i++) ...[
 
                                       // Pilihan jawaban
                                       SizedBox(
-                                        height: _optionHeight,
+                                        height: 48 * s,
                                         child: AnswerOptionTile(
                                           label: String.fromCharCode(65 + i),
                                           text: question.options[i],
@@ -435,7 +426,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                         ),
                                       ),
                                       if (i < question.options.length - 1)
-                                        const SizedBox(height: _optionGap),
+                                        SizedBox(height: 8 * s),
                                     ],
                                   ],
                                 ),
@@ -449,10 +440,10 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
 
                   // Area tombol navigasi pertanyaan
                   Padding(
-                    padding: EdgeInsets.fromLTRB(hPad, 10, hPad, 30),
+                    padding: EdgeInsets.fromLTRB(hPad, 10 * s, hPad, 30 * s),
                     child: Center(
                       child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 760),
+                        constraints: BoxConstraints(maxWidth: 760 * s),
                         child: Row(
                           children: [
                             // Tombol sebelumnya
@@ -462,7 +453,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                     ? null
                                     : () => controller.goToQuestion(currentIndex - 1),
                                 style: _lightButtonStyle(
-                                    theme, const Size.fromHeight(44)),
+                                    theme, Size.fromHeight(44 * s), s),
                                 child: const Text('Sebelumnya',
                                     style:
                                         TextStyle(fontWeight: FontWeight.w700)),
@@ -470,7 +461,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                             ),
 
                             // Jarak antartombol
-                            const SizedBox(width: 15),
+                            SizedBox(width: 15 * s),
 
                             // Tombol berikutnya dan kumpulkan
                             Expanded(
@@ -478,7 +469,7 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
                                 onPressed: isLastQuestion
                                     ? _collectSession
                                     : () => controller.goToQuestion(currentIndex + 1),
-                                style: navStyle(const Size.fromHeight(44)),
+                                style: navStyle(Size.fromHeight(44 * s)),
                                 child: Text(
                                   isLastQuestion ? 'Kumpulkan' : 'Berikutnya',
                                   style: const TextStyle(
@@ -494,12 +485,17 @@ class _SessionExecutionScreenState extends State<SessionExecutionScreen> with Wi
 
                   // Area tombol pengaturan tema
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(18, 2, 18, 10),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: ThemeToggleButton(
-                        controller: controller,
-                        compact: true,
+                    padding: EdgeInsets.fromLTRB(hPad, 2, hPad, 10 * s),
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: 760 * s),
+                        child: Align(
+                          alignment: Alignment.centerRight,
+                          child: ThemeToggleButton(
+                            controller: controller,
+                            compact: true,
+                          ),
+                        ),
                       ),
                     ),
                   ),
